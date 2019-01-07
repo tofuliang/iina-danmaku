@@ -259,7 +259,7 @@ extension MainMenuActionHandler {
 
 extension MainMenuActionHandler {
   @objc func menuLoadExternalSub(_ sender: NSMenuItem) {
-    Utility.quickOpenPanel(title: "Load external subtitle file", chooseDir: false) { url in
+    Utility.quickOpenPanel(title: "Load external subtitle file", chooseDir: false, runModal: true) { url in
       self.player.loadExternalSubFile(url, delay: true)
     }
   }
