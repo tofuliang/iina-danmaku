@@ -1,10 +1,12 @@
-name: CI
+name: BUILD
 
 on:
   push:
-      branches: [develop]
+      branches: [danmaku-support]
   pull_request:
       branches: [develop]
+  watch:
+      types: [started]
 
 jobs:
   build:
@@ -16,5 +18,31 @@ jobs:
       - name: Install dependencies
         run: pod install && ./other/download_libs.sh
 
+      - name: modify scheme
+        run: |
+          sed -i "" 's/<string>iina<\/string>/<string>iinadv<\/string>/g' iina/Info.plist
+          sed -i "" 's/if parsed.scheme != "iina"/if parsed.scheme != "iinadv"/g' iina/AppDelegate.swift
+
       - name: Build
-        run: xcodebuild -workspace iina.xcworkspace -scheme iina CODE_SIGNING_ALLOWED=NO
+        run: xcodebuild -workspace iina.xcworkspace -scheme iina CODE_SIGNING_ALLOWED=NO -configuration Release
+        
+      - name: 打包app
+        run: |
+          rm -rf ./artifact/
+          mkdir -p ./artifact/release
+          cd ~/Library/Developer/Xcode/DerivedData/iina-*/Build/Products/Release
+          mv IINA.app IINA-Danmaku.app
+          tar czf IINA-Danmaku.app.tgz IINA-Danmaku.app
+          cd -
+          find ~/Library/Developer/Xcode/DerivedData/iina-*/Build/Products/Release -name "IINA-Danmaku.app.tgz" | xargs -I {} mv -f {} ./artifact/release/          
+      - name: 上传 IINA-Danmaku.app
+        uses: actions/upload-artifact@v2
+        with:
+          name: IINA-Danmaku.app
+          path: ./artifact/release/
+          
+#      - name: SSH 连接到 Actions
+#        uses: P3TERX/ssh2actions@main
+#        env:
+#         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+#         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
