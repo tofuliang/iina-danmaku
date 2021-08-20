@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     # FIXME: This builds with macOS 10.15. Move this to the 11.0 builders when possible. (See: https://github.com/actions/virtual-environments/issues/2486)
-    runs-on:  macos-latest
+    runs-on:  macos-11.0
     steps:
       - uses: actions/checkout@v2
 
@@ -24,7 +24,7 @@ jobs:
           sed -i "" 's/if parsed.scheme != "iina"/if parsed.scheme != "iinadv"/g' iina/AppDelegate.swift
 
       - name: Build
-        run: xcodebuild -project iina.xcodeproj -scheme iina CODE_SIGNING_ALLOWED=NO
+        run: xcodebuild -project iina.xcodeproj -scheme iina CODE_SIGNING_ALLOWED=NO -configuration Release
         
       - name: 打包app
         run: |
