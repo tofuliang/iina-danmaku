@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     # FIXME: This builds with macOS 10.15. Move this to the 11.0 builders when possible. (See: https://github.com/actions/virtual-environments/issues/2486)
-    runs-on:  macos-11.0
+    runs-on:  macos-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -20,11 +20,15 @@ jobs:
 
       - name: modify scheme
         run: |
+          sed -i "" 's/dduan/tofuliang/g' Cartfile*
           sed -i "" 's/<string>iina<\/string>/<string>iinadv<\/string>/g' iina/Info.plist
           sed -i "" 's/if parsed.scheme != "iina"/if parsed.scheme != "iinadv"/g' iina/AppDelegate.swift
 
+      - name: Build Deps
+        run: carthage bootstrap --platform macOS --use-xcframeworks
+
       - name: Build
-        run: xcodebuild -project iina.xcodeproj -scheme iina CODE_SIGNING_ALLOWED=NO -configuration Release
+        run: xcodebuild -project iina.xcodeproj -scheme iina CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO -configuration Release
         
       - name: 打包app
         run: |
